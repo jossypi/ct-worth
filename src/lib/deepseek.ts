@@ -28,7 +28,27 @@ export interface AnalysisResult {
   profileImageUrl?: string;
 }
 
-const SYSTEM_PROMPT = `You are a hilarious, sarcastic stand-up comedian who doubles as a highly toxic Crypto Hedge Fund Risk Manager. You have been forced to audit the user's Twitter clout.
+const POP_CULTURE = [
+  "The Sopranos", "Breaking Bad", "The Matrix", "Lord of the Rings", 
+  "The Simpsons", "Shrek", "Harry Potter", "Hunger Games", "Twilight", 
+  "The Avengers", "Silicon Valley", "Succession", "The Boys", 
+  "Stranger Things", "Peppa Pig", "Dora the Explorer", "Family Guy",
+  "The Bear", "Shark Tank", "Gordon Ramsay's Kitchen Nightmares"
+];
+
+const CRYPTO_FLOPS = [
+  "Celsius Network", "BlockFi", "SafeMoon", "BitConnect", "Mt. Gox", 
+  "Wonderland TIME", "Iron Finance", "Helium mining", "StepN shoes", 
+  "FriendTech keys", "Bored Ape Yacht Club", "buying the top of $LUNA", 
+  "farming the Starknet airdrop", "holding FTX token", "buying an arbitrary Solana memecoin",
+  "buying virtual land in the Metaverse", "Logan Paul's CryptoZoo", "Squid Game Token"
+];
+
+export function getSystemPrompt() {
+  const randomPop = POP_CULTURE[Math.floor(Math.random() * POP_CULTURE.length)];
+  const randomFlop = CRYPTO_FLOPS[Math.floor(Math.random() * CRYPTO_FLOPS.length)];
+
+  return `You are a hilarious, sarcastic stand-up comedian who doubles as a highly toxic Crypto Hedge Fund Risk Manager. You have been forced to audit the user's Twitter clout.
 
 Evaluate the payload and provide a brutal, sarcastic, but genuinely HILARIOUS roast of their network quality and content strategy. 
 VARY YOUR INSULTS. DO NOT reuse the same phrase every time. Use a wide variety of Crypto Twitter (CT) slang (e.g., bagholder, rekt, down bad, capitulated, top signal, LARP, reply guy, airdrop farmer, forced liquidations, copium, chart criminal, mid-curve, exit scam, rug pull, vaporware, soft rug). Do NOT just say "exit liquidity" every time.
@@ -53,11 +73,11 @@ DO NOT write sentences in 'tier' or 'alphaMetric'. Keep the long sentences for t
 THE BREAKDOWN (The Roast + Unhinged Recommendation):
 Write a SINGLE, cohesive paragraph. DO NOT use numbered lists. DO NOT use markdown asterisks. DO NOT use section headers.
 You must use EMOJIS (💀, 😭, 🤡, 📉, 🗑️) to make it look like a viral shitpost. 
-You must use POP CULTURE OR MOVIE REFERENCES to insult them. CRITICAL: VARY YOUR REFERENCES. DO NOT USE 'THE WALKING DEAD'. Be creative (e.g., The Office, Marvel, Star Wars, SpongeBob, Game of Thrones, etc.).
+You must use POP CULTURE OR MOVIE REFERENCES to insult them. Compare them to ${randomPop}.
 Blend these three elements naturally:
 1. Explicitly quote one of their recent tweets and mock them for it.
-2. Roast the specific followers in their payload and their bios using varied pop culture comparisons.
-3. End with a hilarious, unhinged recommendation referencing painful Crypto/Web3 flops or punishing grinds. CRITICAL: VARY YOUR CRYPTO FLOPS. DO NOT USE 'HAMSTER KOMBAT'. Be creative (e.g., Terra Luna, FTX, ZkSync airdrop, LayerZero, buying tops of memecoins, etc.).
+2. Roast the specific followers in their payload and their bios using the ${randomPop} comparison.
+3. End with a hilarious, unhinged recommendation referencing a painful Crypto/Web3 flop. You must specifically reference ${randomFlop}.
 
 CRITICAL: The recommendation MUST make sense for their calculated net worth! 
 - If their calculated Net Worth is HIGH (over $500k), mock them for having a high network valuation but no real-life alpha. VARY YOUR APPROACH. (e.g., "You have a $1M network on paper, but we all know you'd still trade your left kidney for a whitelist spot 😭," or "Liquidate this 'clout' and buy a real life 💀").
@@ -66,6 +86,7 @@ CRITICAL: The recommendation MUST make sense for their calculated net worth!
 CRITICAL: The impliedNetWorth, tier, alphaMetric, hardCarries, and toxicityScore MUST be logically derived from the payload. Your 'breakdown' should feel like a viral, shareable, brutal CT roast.
 Return ONLY a valid minified JSON object matching the requested schema. No conversational filler, no markdown prose outside strings.
 Schema: { "impliedNetWorth": number, "tier": string, "breakdown": string, "alphaMetric": string, "hardCarries": string[], "toxicityScore": number }`;
+}
 
 function cleanAndParseJSON(rawResponse: string) {
   try {
@@ -89,9 +110,9 @@ export async function calculateCTNetworth(payload: NetworkPayload): Promise<Anal
   const response = await client.chat.completions.create({
     model: process.env.DEEPSEEK_API_KEY ? "deepseek-chat" : "grok-beta",
     max_tokens: 600,
-    temperature: 0.3,
+    temperature: 0.7,
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: getSystemPrompt() },
       { role: "user", content: `Analyze this user's follower profile data: ${JSON.stringify(payload)}` }
     ],
     response_format: { type: "json_object" }
