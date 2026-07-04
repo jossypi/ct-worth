@@ -14,8 +14,16 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
 
   const placeholders = ["vitalikbuterin", "elonmusk", "cobie", "blknoiz06", "jossypi"];
+  const loadingPhrases = [
+    "Consulting the Chainlink Oracles...",
+    "Bribing VCs for your follower data...",
+    "Checking your timeline for rug pulls...",
+    "Calculating your exit liquidity...",
+    "Finding out who carries your clout..."
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,8 +32,18 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    let loadingInterval: NodeJS.Timeout;
+    if (isLoading) {
+      loadingInterval = setInterval(() => {
+        setLoadingPhraseIdx((prev) => (prev + 1) % loadingPhrases.length);
+      }, 1500);
+    }
+    return () => clearInterval(loadingInterval);
+  }, [isLoading, loadingPhrases.length]);
+
+  const handleAnalyze = async (e?: React.FormEvent, regenerate = false) => {
+    if (e) e.preventDefault();
     if (!handle.trim()) {
       toast.error("Please enter an X handle.");
       return;
@@ -34,13 +52,13 @@ export default function Home() {
     const cleanHandle = handle.replace("@", "").split("/").pop() || handle;
 
     setIsLoading(true);
-    setAnalysis(null);
+    if (!regenerate) setAnalysis(null);
 
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: cleanHandle }),
+        body: JSON.stringify({ username: cleanHandle, regenerate }),
       });
 
       const data = await response.json();
@@ -106,7 +124,7 @@ export default function Home() {
                   {isLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      Scanning...
+                      {loadingPhrases[loadingPhraseIdx]}
                     </>
                   ) : (
                     <>
@@ -117,20 +135,29 @@ export default function Home() {
                 </Button>
               </form>
             </div>
+            <div className="mt-4 text-center">
+              <p className="text-xs font-medium text-zinc-500 uppercase tracking-widest">
+                Analysis based on public X data + AI interpretation. May vary based on API rate limits.
+              </p>
+            </div>
           </div>
         )}
 
         {/* Dashboard Result */}
         {analysis && (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out mt-8 w-full">
-            <NetworkDashboard username={handle} analysis={analysis} />
+            <NetworkDashboard 
+              username={handle} 
+              analysis={analysis} 
+              onRegenerate={() => handleAnalyze(undefined, true)}
+              isLoading={isLoading}
+            />
             <div className="mt-12 text-center">
               <Button 
-                variant="ghost" 
                 onClick={() => setAnalysis(null)} 
-                className="text-zinc-400 hover:text-white font-semibold uppercase tracking-widest text-sm transition-colors rounded-full hover:bg-white/5 px-6 py-2"
+                className="h-14 bg-white/10 text-white border border-white/20 hover:bg-white/20 font-bold uppercase tracking-widest text-sm transition-all rounded-full backdrop-blur-md px-10 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
               >
-                Analyze another account
+                Roast Another Account
               </Button>
             </div>
           </div>

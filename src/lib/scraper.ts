@@ -16,10 +16,12 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
     });
     
     let profileImageUrl = "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png";
+    let targetFollowersCount = 0;
 
     if (userRes.ok) {
       const userData = await userRes.json();
       profileImageUrl = userData?.avatar || userData?.profile_image_url_https || profileImageUrl;
+      targetFollowersCount = userData?.sub_count || userData?.followers_count || userData?.legacy?.followers_count || 0;
     } else {
       console.error("[Scraper] Failed to fetch user profile", await userRes.text());
     }
@@ -42,6 +44,9 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
       });
 
       if (!followersRes.ok) {
+        if (followersRes.status === 429) {
+          throw new Error("RapidAPI Quota Exceeded. Please upgrade your API plan or try again later.");
+        }
         if (i === 0) throw new Error(`Failed to fetch followers from RapidAPI. Status: ${followersRes.status}`);
         break; // If we fail on subsequent pages, just use what we have
       }
@@ -97,16 +102,19 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
       console.warn("[Scraper] Failed to fetch timeline, continuing without it.", e);
     }
 
+    if (sample.length === 0) {
+      throw new Error("Failed to pull live network data. The account may be private, or the RapidAPI quota has been exceeded.");
+    }
+
     return {
       target: username,
       profileImageUrl: profileImageUrl,
-      followers_sample: sample.length > 0 ? sample : [
-        { handle: "empty_network", followers: 0, bio: "No followers found or parsing failed." }
-      ],
+      targetFollowersCount: targetFollowersCount,
+      followers_sample: sample,
       recent_tweets: recentTweets
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Scraper Error]", error);
-    throw new Error("Failed to pull live RapidAPI data. Please check your RapidAPI Endpoint URLs in src/lib/scraper.ts");
+    throw new Error(error.message || "Failed to pull live RapidAPI data. Please check your RapidAPI Endpoint.");
   }
 }

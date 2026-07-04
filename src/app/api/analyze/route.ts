@@ -17,8 +17,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const { username } = body;
+    const { username, regenerate } = await req.json();
 
     if (!username) {
       return NextResponse.json({ error: "Username is required" }, { status: 400 });
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
     const networkPayload = await scrapeTwitterProfile(username);
 
     // 3. Process with DeepSeek / Grok
-    const analysis = await calculateCTNetworth(networkPayload);
+    const analysis = await calculateCTNetworth(networkPayload, regenerate === true);
 
     // 4. Attach profile image from scraper to final result
     analysis.profileImageUrl = networkPayload.profileImageUrl;

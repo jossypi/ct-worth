@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import * as htmlToImage from "html-to-image";
 import { AnalysisResult } from "@/lib/deepseek";
 import { Button } from "@/components/ui/button";
-import { Download, Share2, TrendingUp } from "lucide-react";
+import { Download, Share2, TrendingUp, Dices, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface NetworkDashboardProps {
   username: string;
   analysis: AnalysisResult;
+  onRegenerate?: () => void;
+  isLoading?: boolean;
 }
 
 // Generates stable neon colors based on the username string hash
@@ -28,9 +30,21 @@ function generateColorsFromHandle(handle: string) {
   };
 }
 
-export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) {
+export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }: NetworkDashboardProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const colors = useMemo(() => generateColorsFromHandle(username), [username]);
+  const [showRoast, setShowRoast] = useState(true);
+  const [showGrowthTip, setShowGrowthTip] = useState(true);
+  const [showToxicity, setShowToxicity] = useState(true);
+  const [showHardCarries, setShowHardCarries] = useState(true);
+  const [showMeme, setShowMeme] = useState(false);
+
+  const memeImage = analysis.impliedNetWorth > 500000 ? '/memes/gigachad.png' 
+                  : analysis.impliedNetWorth < 10000 ? '/memes/brainlet.png'
+                  : (analysis.toxicityScore > 70 && analysis.impliedNetWorth < 100000) ? '/memes/bogdanoff.png'
+                  : (analysis.toxicityScore > 50 || analysis.impliedNetWorth < 50000) ? '/memes/wojak.png' 
+                  : analysis.impliedNetWorth > 100000 ? '/memes/stonks.png'
+                  : '/memes/pepe.png';
 
   const handleDownloadImage = async () => {
     if (!printRef.current) return;
@@ -71,6 +85,13 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
             style={{ background: `radial-gradient(circle, ${colors.tertiary}, ${colors.primary}, transparent)` }}
           ></div>
           
+          {/* Meme Mode Overlay */}
+          {showMeme && (
+            <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none mix-blend-screen opacity-20">
+              <img src={memeImage} alt="Meme Overlay" className="w-[120%] h-auto object-cover blur-[2px] grayscale contrast-150" />
+            </div>
+          )}
+          
           <div className="border-b border-white/10 p-6 flex flex-row items-center gap-4 bg-white/5 relative z-10">
             {analysis.profileImageUrl && (
               <img 
@@ -108,27 +129,31 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
                 <p className="text-[10px] font-bold text-zinc-500 uppercase mb-1 tracking-widest flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span> Alpha Metric</p>
                 <p className="font-semibold text-lg leading-tight text-white">{analysis.alphaMetric}</p>
               </div>
-              <div className="p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <p className="text-[10px] font-bold text-zinc-500 uppercase mb-1 tracking-widest flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: analysis.toxicityScore > 60 ? '#ef4444' : analysis.toxicityScore > 30 ? '#eab308' : '#22c55e'}}></span> Toxicity</p>
-                <div className="flex items-end gap-2">
-                  <p className="font-semibold text-2xl leading-tight text-white">{analysis.toxicityScore}</p>
-                  <p className="text-xs text-zinc-500 font-medium pb-1">/100</p>
+              {showToxicity && (
+                <div className="p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase mb-1 tracking-widest flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: analysis.toxicityScore > 60 ? '#ef4444' : analysis.toxicityScore > 30 ? '#eab308' : '#22c55e'}}></span> Toxicity</p>
+                  <div className="flex items-end gap-2">
+                    <p className="font-semibold text-2xl leading-tight text-white">{analysis.toxicityScore}</p>
+                    <p className="text-xs text-zinc-500 font-medium pb-1">/100</p>
+                  </div>
+                  <div className="w-full bg-zinc-800 h-1 mt-2 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: analysis.toxicityScore + '%', backgroundColor: analysis.toxicityScore > 60 ? '#ef4444' : analysis.toxicityScore > 30 ? '#eab308' : '#22c55e' }}></div>
+                  </div>
                 </div>
-                <div className="w-full bg-zinc-800 h-1 mt-2 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: analysis.toxicityScore + '%', backgroundColor: analysis.toxicityScore > 60 ? '#ef4444' : analysis.toxicityScore > 30 ? '#eab308' : '#22c55e' }}></div>
-                </div>
+              )}
+            </div>
+
+            {showRoast && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">The Roast</p>
+                <p className="text-zinc-300 font-medium text-base md:text-lg leading-relaxed bg-white/5 p-6 border border-white/10 rounded-2xl">
+                  &quot;{analysis.breakdown}&quot;
+                </p>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">The Roast</p>
-              <p className="text-zinc-300 font-medium text-base md:text-lg leading-relaxed bg-white/5 p-6 border border-white/10 rounded-2xl">
-                &quot;{analysis.breakdown}&quot;
-              </p>
-            </div>
-
-            {analysis.growthTip && (
+            {analysis.growthTip && showGrowthTip && (
               <div className="space-y-3">
                 <p className="text-xs font-bold text-green-500/70 uppercase tracking-widest flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
@@ -140,7 +165,7 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
               </div>
             )}
 
-            {analysis.hardCarries && analysis.hardCarries.length > 0 && (
+            {showHardCarries && analysis.hardCarries && analysis.hardCarries.length > 0 && (
               <div className="space-y-4">
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Hard Carries</p>
                 <div className="flex flex-wrap gap-2">
@@ -165,17 +190,74 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
           </div>
           <div className="p-5 border-t border-white/10 flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest bg-white/5 relative z-10">
             <p className="flex items-center gap-2"><TrendingUp className="w-3 h-3 text-cyan-400" /> CT-Worth Engine</p>
-            <p>{new Date().toLocaleDateString()}</p>
+            <p className="hidden sm:block">For entertainment; AI-generated analysis.</p>
+            <p>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+          </div>
+        </div>
+      </div>
+      {/* Customization Panel */}
+      <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 mt-2 mb-2">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex-shrink-0">
+            <p className="text-sm font-black text-zinc-400 uppercase tracking-widest">Personalize<br className="hidden md:block" />Receipt</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-4 w-full md:w-auto">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input type="checkbox" className="sr-only" checked={showRoast} onChange={(e) => setShowRoast(e.target.checked)} />
+                <div className={`w-10 h-6 rounded-full transition-colors ${showRoast ? 'bg-indigo-500' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showRoast ? 'translate-x-4' : 'translate-x-0'}`}></div>
+              </div>
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">The Roast</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input type="checkbox" className="sr-only" checked={showGrowthTip} onChange={(e) => setShowGrowthTip(e.target.checked)} />
+                <div className={`w-10 h-6 rounded-full transition-colors ${showGrowthTip ? 'bg-green-500' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showGrowthTip ? 'translate-x-4' : 'translate-x-0'}`}></div>
+              </div>
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">Growth Tip</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input type="checkbox" className="sr-only" checked={showToxicity} onChange={(e) => setShowToxicity(e.target.checked)} />
+                <div className={`w-10 h-6 rounded-full transition-colors ${showToxicity ? 'bg-red-500' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showToxicity ? 'translate-x-4' : 'translate-x-0'}`}></div>
+              </div>
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">Toxicity</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input type="checkbox" className="sr-only" checked={showHardCarries} onChange={(e) => setShowHardCarries(e.target.checked)} />
+                <div className={`w-10 h-6 rounded-full transition-colors ${showHardCarries ? 'bg-cyan-500' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showHardCarries ? 'translate-x-4' : 'translate-x-0'}`}></div>
+              </div>
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">Hard Carries</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input type="checkbox" className="sr-only" checked={showMeme} onChange={(e) => setShowMeme(e.target.checked)} />
+                <div className={`w-10 h-6 rounded-full transition-colors ${showMeme ? 'bg-[#ff00ff]' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showMeme ? 'translate-x-4' : 'translate-x-0'}`}></div>
+              </div>
+              <span className="text-sm font-black text-[#ff00ff] group-hover:text-white transition-colors">Meme Mode</span>
+            </label>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full">
-        <Button onClick={handleDownloadImage} className="flex-1 h-14 bg-white/10 text-white border border-white/20 hover:bg-white/20 font-bold uppercase tracking-widest text-sm transition-all rounded-full backdrop-blur-md hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+        {onRegenerate && (
+          <Button onClick={onRegenerate} disabled={isLoading} className="w-full h-14 bg-zinc-800/50 text-zinc-300 border border-white/10 hover:bg-zinc-800 hover:text-white font-bold uppercase tracking-widest text-sm transition-all rounded-full backdrop-blur-md">
+            {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Dices className="w-4 h-4 mr-2" />}
+            {isLoading ? "Rolling..." : "Regen Roast"}
+          </Button>
+        )}
+        <Button onClick={handleDownloadImage} className="w-full h-14 bg-white/10 text-white border border-white/20 hover:bg-white/20 font-bold uppercase tracking-widest text-sm transition-all rounded-full backdrop-blur-md hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
           <Download className="w-4 h-4 mr-2" />
           Save Receipt
         </Button>
-        <Button onClick={handleShareOnX} className="flex-1 h-14 text-black border border-white/20 font-bold uppercase tracking-widest text-sm transition-all rounded-full hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]" style={{ background: `linear-gradient(45deg, ${colors.primary}, ${colors.secondary})`, boxShadow: `0 0 20px ${colors.primary}40` }}>
+        <Button onClick={handleShareOnX} className="w-full h-14 text-black border border-white/20 font-bold uppercase tracking-widest text-sm transition-all rounded-full hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]" style={{ background: `linear-gradient(45deg, ${colors.primary}, ${colors.secondary})`, boxShadow: `0 0 20px ${colors.primary}40` }}>
           <Share2 className="w-4 h-4 mr-2" />
           Post to X
         </Button>

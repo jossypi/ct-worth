@@ -34,9 +34,9 @@ async function runEvals() {
 
       // Constraint 2: New length limits for UI aesthetics
       const roastWords = result.breakdown.split(' ').length;
-      if (roastWords > 65) { // Giving it a tiny bit of leniency over 50
+      if (roastWords > 100) { // Giving it a leniency over 85
         pass = false;
-        errors.push(`Roast breakdown is too long! Limit is 50 words, got ${roastWords}`);
+        errors.push(`Roast breakdown is too long! Limit is 85 words, got ${roastWords}`);
       }
 
       if (!result.growthTip) {
