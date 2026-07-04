@@ -64,10 +64,55 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
     }
   };
 
-  const handleShareOnX = () => {
-    const shareText = `My CT Influence Net Worth is $${analysis.impliedNetWorth.toLocaleString()} via @JossyPi's CT-Worth Calculator!\n\nTier: ${analysis.tier}\nAlpha Metric: ${analysis.alphaMetric}\n\nCheck your clout score here:`;
-    const url = "https://ct-worth.vercel.app";
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`, "_blank");
+  const handleShareOnX = async () => {
+    if (!printRef.current) return;
+    
+    const toastId = toast.loading("Preparing your receipt for X...");
+    
+    try {
+      const shareText = `My CT Influence Net Worth is $${analysis.impliedNetWorth.toLocaleString()} via @JossyPi's CT-Worth Calculator!\n\nTier: ${analysis.tier}\nAlpha Metric: ${analysis.alphaMetric}\n\nCheck your clout score here:`;
+      const url = "https://ct-worth.vercel.app";
+
+      const dataUrl = await htmlToImage.toPng(printRef.current, {
+        backgroundColor: "#000000",
+        pixelRatio: 2,
+      });
+
+      // Try Web Share API for Mobile (Allows direct image sharing to X App)
+      if (navigator.share) {
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], `${username}_ct_worth.png`, { type: 'image/png' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          toast.dismiss(toastId);
+          await navigator.share({
+            title: 'My CT Worth',
+            text: `${shareText}\n${url}`,
+            files: [file]
+          });
+          return;
+        }
+      }
+
+      // Fallback for Desktop: Download image and open X intent window
+      const link = document.createElement("a");
+      link.download = `${username}_ct_worth.png`;
+      link.href = dataUrl;
+      link.click();
+      
+      toast.dismiss(toastId);
+      toast.success("Receipt saved! Please attach it to your post.");
+      
+      setTimeout(() => {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`, "_blank");
+      }, 500);
+      
+    } catch (err) {
+      console.error(err);
+      toast.dismiss(toastId);
+      toast.error("Failed to share.");
+    }
   };
 
   return (
