@@ -32,7 +32,25 @@ async function runEvals() {
         errors.push(`AlphaMetric string is too long: "${result.alphaMetric}"`);
       }
 
-      // Constraint 2: Hallucination Check
+      // Constraint 2: New length limits for UI aesthetics
+      const roastWords = result.breakdown.split(' ').length;
+      if (roastWords > 65) { // Giving it a tiny bit of leniency over 50
+        pass = false;
+        errors.push(`Roast breakdown is too long! Limit is 50 words, got ${roastWords}`);
+      }
+
+      if (!result.growthTip) {
+        pass = false;
+        errors.push("Missing growthTip field in JSON");
+      } else {
+        const tipWords = result.growthTip.split(' ').length;
+        if (tipWords > 25) { // Leniency over 15
+          pass = false;
+          errors.push(`Growth Tip is too long! Limit is 15 words, got ${tipWords}`);
+        }
+      }
+
+      // Constraint 3: Hallucination Check
       // Extract all handles from the breakdown (e.g. @username)
       const handlesInBreakdown = result.breakdown.match(/@\w+/g) || [];
       const allowedHandles = payload.followers_sample.map(f => `@${f.handle}`);
@@ -58,7 +76,8 @@ async function runEvals() {
         console.log(`❌ ${payload.target} failed constraints:`, errors);
       }
 
-      console.log(`\nGenerated Breakdown:\n${result.breakdown}\n`);
+      console.log(`\nGenerated Breakdown:\n${result.breakdown}`);
+      console.log(`\nGrowth Tip:\n${result.growthTip}\n`);
 
     } catch (e) {
       console.error(`❌ Failed to run inference on ${payload.target}`, e);

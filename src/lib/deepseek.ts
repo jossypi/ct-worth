@@ -25,6 +25,7 @@ export interface AnalysisResult {
   alphaMetric: string;
   hardCarries: string[];
   toxicityScore: number;
+  growthTip: string;
   profileImageUrl?: string;
 }
 
@@ -104,8 +105,8 @@ STRICT FIELD LIMITS:
 - "alphaMetric": Maximum 4 words. Be concise.
 DO NOT write sentences in 'tier' or 'alphaMetric'. Keep the long sentences for the 'breakdown' field only.
 
-THE BREAKDOWN (The Roast + Unhinged Recommendation):
-Write a SINGLE, cohesive paragraph. DO NOT use numbered lists. DO NOT use markdown asterisks. DO NOT use section headers.
+THE BREAKDOWN (The Roast):
+Write a SINGLE, cohesive paragraph. YOU ARE STRICTLY LIMITED TO A MAXIMUM OF 3 SENTENCES AND UNDER 50 WORDS. Keep it punchy, fast, and brutal. DO NOT use numbered lists. DO NOT use markdown asterisks. DO NOT use section headers.
 You must use EMOJIS (💀, 😭, 🤡, 📉, 🗑️) to make it look like a viral shitpost. 
 CRITICAL STYLE INSTRUCTION: ${randomAngle}
 Blend these elements naturally:
@@ -114,13 +115,18 @@ Blend these elements naturally:
 3. End with a hilarious, unhinged insult. 
 CRITICAL: DO NOT use the word "Recommendation:". Let the final insult flow naturally into the rest of the paragraph without any formal sectioning.
 
-CRITICAL: The final insult MUST make sense for their calculated net worth! 
-- If their calculated Net Worth is HIGH (over $500k), mock them for having a high network valuation but no real-life alpha. VARY YOUR APPROACH. (e.g., "You have a $1M network on paper, but we all know you'd still trade your left kidney for a whitelist spot 😭," or "Liquidate this 'clout' and buy a real life 💀").
-- If their calculated Net Worth is LOW, hit them with painful low-tier grinds.
+CRITICAL: The final insult MUST make sense for their calculated net worth using these STRICT FINANCIAL BRACKETS:
+- < $10k: Literal poverty jokes, McDonald's applications, used Hondas, tapping screens for scraps.
+- $10k - $100k: "Paper middle class", can barely afford rent but pretends to be a trader, pure exit liquidity.
+- $100k - $1M: "Mid-curve paper millionaire", trapped in the trenches, driving a leased BMW.
+- > $1M: "Fake whale", arrogant VC, paper wealth that will disappear in the bear market.
+
+THE GROWTH TIP:
+Write a separate, 1-sentence piece of constructive, slightly sarcastic but genuinely useful advice on how they can improve their Twitter network/alpha. STRICTLY LIMIT TO 15 WORDS MAXIMUM.
 
 CRITICAL: The impliedNetWorth, tier, alphaMetric, hardCarries, and toxicityScore MUST be logically derived from the payload. Your 'breakdown' should feel like a viral, shareable, brutal CT roast.
 Return ONLY a valid minified JSON object matching the requested schema. No conversational filler, no markdown prose outside strings.
-Schema: { "impliedNetWorth": number, "tier": string, "breakdown": string, "alphaMetric": string, "hardCarries": string[], "toxicityScore": number }`;
+Schema: { "impliedNetWorth": number, "tier": string, "breakdown": string, "growthTip": string, "alphaMetric": string, "hardCarries": string[], "toxicityScore": number }`;
 }
 
 function cleanAndParseJSON(rawResponse: string) {
@@ -135,6 +141,7 @@ function cleanAndParseJSON(rawResponse: string) {
       tier: "Unregistered Degen",
       alphaMetric: "0.00 CTI",
       breakdown: "The engine hit a network congestion spike or failed to parse the data. Your clout is too volatile to calculate right now.",
+      growthTip: "Upgrade your RPC node or touch grass until the API recovers.",
       hardCarries: [],
       toxicityScore: 99
     };

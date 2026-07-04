@@ -128,6 +128,18 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
               </p>
             </div>
 
+            {analysis.growthTip && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-green-500/70 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  Growth Tip
+                </p>
+                <p className="text-green-100/90 font-medium text-sm md:text-base leading-relaxed bg-green-500/10 p-5 border border-green-500/20 rounded-2xl">
+                  {analysis.growthTip}
+                </p>
+              </div>
+            )}
+
             {analysis.hardCarries && analysis.hardCarries.length > 0 && (
               <div className="space-y-4">
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Hard Carries</p>
