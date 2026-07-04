@@ -1,9 +1,12 @@
 import { NetworkPayload } from "./deepseek";
 
 export async function scrapeTwitterProfile(username: string): Promise<NetworkPayload> {
-  console.log(`[Scraper] Fetching live data for ${username} via RapidAPI (twitter-api45)...`);
+  console.log(`[Scraper] Fetching live data for ${username}...`);
   
-  const rapidApiKey = process.env.RAPIDAPI_KEY || "40975d52b3msh5df4f55326578ddp17c53bjsn0245c7694287";
+  const rapidApiKey = process.env.SCRAPER_API_KEY;
+  if (!rapidApiKey) {
+    throw new Error("Missing SCRAPER_API_KEY in environment variables");
+  }
   const RAPIDAPI_HOST = "twitter-api45.p.rapidapi.com"; 
 
   try {

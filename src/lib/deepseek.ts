@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY || process.env.GROK_API_KEY || "", // Fallback to Grok if DeepSeek is missing
-  baseURL: process.env.DEEPSEEK_API_KEY ? "https://api.deepseek.com" : "https://api.x.ai/v1", // Use Grok URL if using Grok key
+  apiKey: process.env.LLM_API_KEY || process.env.GROK_API_KEY || "", 
+  baseURL: process.env.LLM_BASE_URL || (process.env.GROK_API_KEY ? "https://api.x.ai/v1" : "https://api.deepseek.com"), 
 });
 
 export interface FollowerData {
@@ -107,7 +107,7 @@ UNDER NO CIRCUMSTANCES can you invent or hallucinate Twitter handles. You must O
 CRITICAL FOLLOWER COUNT RULE: The target user (@${payload?.target}) has EXACTLY ${payload?.targetFollowersCount ?? 'an unknown number of'} followers. DO NOT hallucinate their follower count.
 
 STRICT MATHEMATICAL RULES FOR NET WORTH:
-- Calculate the exact net worth using this formula: Base Value of 10,000 + (Sum of all followers in the payload * 2) + (Sum of 'hard carries' followers * 5).
+- Calculate the exact net worth using this formula: Base Value of 1,500 + (Sum of all followers in the payload * 0.2) + (Sum of 'hard carries' followers * 1.5).
 - Output the exact calculated number. DO NOT SHOW YOUR WORK. ONLY OUTPUT THE FINAL INTEGER IN THE JSON.
 
 TOXICITY SCORE (0-100):
@@ -167,7 +167,7 @@ function cleanAndParseJSON(rawResponse: string) {
 
 export async function calculateCTNetworth(payload: NetworkPayload, regenerate: boolean = false): Promise<AnalysisResult> {
   const response = await client.chat.completions.create({
-    model: process.env.DEEPSEEK_API_KEY ? "deepseek-chat" : "grok-beta",
+    model: process.env.LLM_MODEL || (process.env.GROK_API_KEY ? "grok-beta" : "deepseek-chat"),
     max_tokens: 600,
     temperature: regenerate ? 0.95 : 0.75,
     messages: [

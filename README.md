@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CT-Worth (Proof of Clout)
+
+A viral Next.js web application that analyzes a user's Crypto Twitter profile, scrapes their "whales" (high-value followers), and uses DeepSeek AI to generate a ruthless, deflated net-worth valuation and a savage roast.
+
+## Features
+- **Follower Scraping:** Integrates with RapidAPI to pull a user's profile and top followers.
+- **DeepSeek V3 Persona:** Uses a custom deflated economy model and a cynical AI persona to generate accurate "Crypto Twitter" tier rankings, toxic roasts, and implied net worth.
+- **Viral Receipts:** Generates a highly stylized 16:9 holographic receipt.
+- **Meme Mode:** Users can toggle interactive, randomly seeded memes (Gigachad, Pepe, Wojak) behind their receipt.
+- **100% Client-Side Export:** Uses `html-to-image` combined with a backend Base64 image proxy to bypass strict Twitter CDN CORS policies for flawless downloads.
+
+## Tech Stack
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS + Lucide Icons
+- **Typography:** Plus Jakarta Sans
+- **AI/LLM:** Your Choice
+- **Data:** Your Prefered Choice
+- **Analytics:** Your Choice
 
 ## Getting Started
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone the repository and install dependencies:
+   ```bash
+   npm install
+   ```
+2. Set up your `.env.local` file:
+   ```env
+   SCRAPER_API_KEY=your_scraper_api_key
+   LLM_API_KEY=your_llm_api_key
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
