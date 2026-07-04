@@ -122,7 +122,7 @@ export function NetworkDashboard({ username, analysis }: NetworkDashboardProps) 
             </div>
 
             <div className="space-y-3">
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Risk Assessment</p>
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">The Roast</p>
               <p className="text-zinc-300 font-medium text-base md:text-lg leading-relaxed bg-white/5 p-6 border border-white/10 rounded-2xl">
                 &quot;{analysis.breakdown}&quot;
               </p>

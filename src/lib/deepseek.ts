@@ -28,25 +28,21 @@ export interface AnalysisResult {
   profileImageUrl?: string;
 }
 
-const POP_CULTURE = [
-  "The Sopranos", "Breaking Bad", "The Matrix", "Lord of the Rings", 
-  "The Simpsons", "Shrek", "Harry Potter", "Hunger Games", "Twilight", 
-  "The Avengers", "Silicon Valley", "Succession", "The Boys", 
-  "Stranger Things", "Peppa Pig", "Dora the Explorer", "Family Guy",
-  "The Bear", "Shark Tank", "Gordon Ramsay's Kitchen Nightmares"
-];
-
-const CRYPTO_FLOPS = [
-  "Celsius Network", "BlockFi", "SafeMoon", "BitConnect", "Mt. Gox", 
-  "Wonderland TIME", "Iron Finance", "Helium mining", "StepN shoes", 
-  "FriendTech keys", "Bored Ape Yacht Club", "buying the top of $LUNA", 
-  "farming the Starknet airdrop", "holding FTX token", "buying an arbitrary Solana memecoin",
-  "buying virtual land in the Metaverse", "Logan Paul's CryptoZoo", "Squid Game Token"
+const ROAST_ANGLES = [
+  "Write this roast entirely in the style of a deeply disappointed Asian parent who is comparing the user's Twitter account to their cousin who just became a doctor.",
+  "Write this roast as an official, highly bureaucratic SEC Indictment document formally charging them with having absolutely zero clout.",
+  "Write this roast in the style of a pretentious, snobby Fine Art Critic analyzing their Twitter profile as if it were a piece of modern trash.",
+  "Write this roast like a 1920s Mafia Boss who is utterly disgusted by how weak and pathetic the user's 'crew' (followers) is.",
+  "Write this roast as Gordon Ramsay screaming at a chef in Kitchen Nightmares, treating their tweets and followers like a disgustingly raw dish.",
+  "Write this roast in the style of a David Attenborough nature documentary, observing this user as a pathetic, lower-tier creature in the Crypto Twitter ecosystem.",
+  "Write this roast as a hyper-aggressive Military Drill Sergeant breaking down a completely useless and soft recruit.",
+  "Write this roast like a Gen-Z TikToker who finds everything about the user's profile painfully 'cringe' and 'mid'.",
+  "Write this roast as a dramatic, medieval Shakespearean actor declaring the user's network to be a total tragedy of epic proportions.",
+  "Write this roast in the voice of a cold, unfeeling AI Cyborg determining that the user has absolutely zero utility or value to the human race."
 ];
 
 export function getSystemPrompt(payload?: NetworkPayload) {
-  const randomPop = POP_CULTURE[Math.floor(Math.random() * POP_CULTURE.length)];
-  const randomFlop = CRYPTO_FLOPS[Math.floor(Math.random() * CRYPTO_FLOPS.length)];
+  const randomAngle = ROAST_ANGLES[Math.floor(Math.random() * ROAST_ANGLES.length)];
 
   let personaInstruction = "You are a hilarious, sarcastic stand-up comedian who doubles as a highly toxic Crypto Hedge Fund Risk Manager. You have been forced to audit the user's Twitter clout.";
 
@@ -54,10 +50,29 @@ export function getSystemPrompt(payload?: NetworkPayload) {
   if (payload) {
     const totalFollowers = payload.followers_sample.reduce((acc, f) => acc + f.followers, 0);
     const hasVC = payload.followers_sample.some(f => f.bio.toLowerCase().includes('fund') || f.bio.toLowerCase().includes('vc') || f.bio.toLowerCase().includes('capital') || f.bio.toLowerCase().includes('founder'));
-    const isAirdropFarmer = payload.recent_tweets?.some(t => t.toLowerCase().includes('airdrop') || t.toLowerCase().includes('rt') || t.toLowerCase().includes('giveaway') || t.toLowerCase().includes('pls'));
     
+    // Convert all recent tweets and bios to a massive string for keyword checking
+    const allText = [
+      ...(payload.recent_tweets || []),
+      ...payload.followers_sample.map(f => f.bio)
+    ].join(" ").toLowerCase();
+
+    const isAirdropFarmer = allText.includes('airdrop') || allText.includes('giveaway') || allText.includes('pls') || allText.includes('testnet');
+    const isNftDegen = allText.includes('nft') || allText.includes('mint') || allText.includes('sweep') || allText.includes('floor price') || allText.includes('pfp');
+    const isSolanaGambler = allText.includes('solana') || allText.includes('pump.fun') || allText.includes('memecoin') || allText.includes('wif') || allText.includes('bonk');
+    const isBuilder = allText.includes('github') || allText.includes('dev') || allText.includes('rust') || allText.includes('solidity') || allText.includes('buidl');
+    const isEngagementBaiter = allText.includes('drop your ens') || allText.includes('drop your sol') || allText.includes('who is awake') || allText.includes('like and rt');
+
     if (totalFollowers > 1000000 || hasVC) {
       personaInstruction += " THE USER IS A HIGH-NET-WORTH WHALE OR VC. Roast their arrogance, their fake 'paper wealth', and how they pretend to be a genius in a bull market.";
+    } else if (isEngagementBaiter) {
+      personaInstruction += " THE USER IS AN ENGAGEMENT BAITER. Destroy them for posting 'Drop your ENS' like a desperate engagement farmer with no real thoughts of their own.";
+    } else if (isSolanaGambler) {
+      personaInstruction += " THE USER IS A SOLANA MEMECOIN GAMBLER. Mock them for donating all their money to 15-year-old devs on pump.fun and chasing 1000x scams.";
+    } else if (isNftDegen) {
+      personaInstruction += " THE USER IS A DELUSIONAL NFT DEGEN. Roast them for holding worthless JPEGs, screaming 'we are so back', and sweeping floors to zero.";
+    } else if (isBuilder) {
+      personaInstruction += " THE USER IS A TECH/BUILDER BRO. Mock them for writing flawless Rust code for protocols that have exactly 3 daily active users.";
     } else if (isAirdropFarmer) {
       personaInstruction += " THE USER IS A DESPERATE AIRDROP FARMER. Roast them brutally for begging for scraps, tapping screens for $2, and having zero real skills.";
     } else if (totalFollowers < 10000) {
@@ -92,13 +107,14 @@ DO NOT write sentences in 'tier' or 'alphaMetric'. Keep the long sentences for t
 THE BREAKDOWN (The Roast + Unhinged Recommendation):
 Write a SINGLE, cohesive paragraph. DO NOT use numbered lists. DO NOT use markdown asterisks. DO NOT use section headers.
 You must use EMOJIS (💀, 😭, 🤡, 📉, 🗑️) to make it look like a viral shitpost. 
-You must use POP CULTURE OR MOVIE REFERENCES to insult them. Compare them to ${randomPop}.
-Blend these three elements naturally:
-1. Explicitly quote one of their recent tweets and mock them for it.
-2. Roast the specific followers in their payload and their bios using the ${randomPop} comparison.
-3. End with a hilarious, unhinged recommendation referencing a painful Crypto/Web3 flop. You must specifically reference ${randomFlop}.
+CRITICAL STYLE INSTRUCTION: ${randomAngle}
+Blend these elements naturally:
+1. Explicitly quote one of their recent tweets and brutally mock them for it using the assigned style.
+2. Roast the specific followers in their payload and their bios using the assigned style.
+3. End with a hilarious, unhinged insult. 
+CRITICAL: DO NOT use the word "Recommendation:". Let the final insult flow naturally into the rest of the paragraph without any formal sectioning.
 
-CRITICAL: The recommendation MUST make sense for their calculated net worth! 
+CRITICAL: The final insult MUST make sense for their calculated net worth! 
 - If their calculated Net Worth is HIGH (over $500k), mock them for having a high network valuation but no real-life alpha. VARY YOUR APPROACH. (e.g., "You have a $1M network on paper, but we all know you'd still trade your left kidney for a whitelist spot 😭," or "Liquidate this 'clout' and buy a real life 💀").
 - If their calculated Net Worth is LOW, hit them with painful low-tier grinds.
 
