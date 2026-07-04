@@ -15,6 +15,7 @@ export interface NetworkPayload {
   target: string;
   profileImageUrl?: string;
   targetFollowersCount?: number;
+  targetBio?: string;
   followers_sample: FollowerData[];
   recent_tweets?: string[];
 }

@@ -17,11 +17,13 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
     
     let profileImageUrl = "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png";
     let targetFollowersCount = 0;
+    let targetBio = "";
 
     if (userRes.ok) {
       const userData = await userRes.json();
       profileImageUrl = userData?.avatar || userData?.profile_image_url_https || profileImageUrl;
       targetFollowersCount = userData?.sub_count || userData?.followers_count || userData?.legacy?.followers_count || 0;
+      targetBio = userData?.desc || userData?.description || userData?.legacy?.description || "";
     } else {
       console.error("[Scraper] Failed to fetch user profile", await userRes.text());
     }
@@ -110,6 +112,7 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
       target: username,
       profileImageUrl: profileImageUrl,
       targetFollowersCount: targetFollowersCount,
+      targetBio: targetBio,
       followers_sample: sample,
       recent_tweets: recentTweets
     };
