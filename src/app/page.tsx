@@ -16,7 +16,7 @@ export default function Home() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
 
-  const placeholders = ["vitalikbuterin", "elonmusk", "cobie", "blknoiz06", "jossypi"];
+  const placeholders = ["inversebrah", "Pentosh1", "cobie", "blknoiz06", "jossypi", "DegenSpartan"];
   const loadingPhrases = [
     "Consulting the Chainlink Oracles...",
     "Bribing VCs for your follower data...",
@@ -95,7 +95,7 @@ export default function Home() {
             CT-Worth Calculator
           </h1>
           <p className="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto leading-relaxed">
-            If your followers were your net worth, what would you be worth in dollars? Find out exactly which followers are carrying your clout.
+            If your recent followers and tweets were your net worth, what would you be worth in dollars? Find out exactly which recent followers are carrying your clout.
           </p>
         </div>
 

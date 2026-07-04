@@ -105,7 +105,7 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
     }
 
     if (sample.length === 0) {
-      throw new Error("Failed to pull live network data. The account may be private, or the RapidAPI quota has been exceeded.");
+      throw new Error("Failed to pull network data. Please check the handle or try again later if you've requested too many times.");
     }
 
     return {

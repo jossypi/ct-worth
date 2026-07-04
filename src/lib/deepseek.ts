@@ -46,21 +46,21 @@ const ROAST_ANGLES = [
 
 export function getSystemPrompt(payload?: NetworkPayload) {
   const randomAngle = ROAST_ANGLES[Math.floor(Math.random() * ROAST_ANGLES.length)];
-  
+
   let basePrompt = "";
   let personaInstruction = "";
-  
+
   if (payload) {
     const hardCarriesList = payload.followers_sample.slice(0, 3).map(f => `@${f.handle}`).join(', ');
     const recentActivity = (payload.recent_tweets || []).slice(0, 3).join(' | ');
     const bio = payload.targetBio || "No bio provided.";
-    
+
     basePrompt = `User has exactly ${payload.targetFollowersCount} followers. Hard carries: ${hardCarriesList}. Recent activity: ${recentActivity}. Bio: ${bio}.`;
-    
+
     // Trait Matrix Persona Generation
     const totalFollowers = payload.followers_sample.reduce((acc, f) => acc + f.followers, 0);
     const hasVC = payload.followers_sample.some(f => f.bio.toLowerCase().includes('fund') || f.bio.toLowerCase().includes('vc') || f.bio.toLowerCase().includes('capital') || f.bio.toLowerCase().includes('founder'));
-    
+
     const allText = [
       ...(payload.recent_tweets || []),
       ...payload.followers_sample.map(f => f.bio)
@@ -111,9 +111,11 @@ STRICT MATHEMATICAL RULES FOR NET WORTH:
 - Output the exact calculated number. DO NOT SHOW YOUR WORK. ONLY OUTPUT THE FINAL INTEGER IN THE JSON.
 
 TOXICITY SCORE (0-100):
-- Read their recent tweets. If they post engagement bait, GM posts, toxic arguments, or low-effort quotes, score them (70-100).
-- If they post actual alpha, score them 0-30.
-- If they are just boring, score them 40-60.
+- Analyze the raw 'vibe' of their timeline. DO NOT default to high scores. Use the full 0-100 spectrum.
+- 0-20: Wholesome builders, polite researchers, pure alpha posters.
+- 21-45: Standard boring reply guys, harmless lurkers.
+- 46-75: Sarcastic degens, engagement farmers, slightly unhinged.
+- 76-100: Absolute menaces, pure toxicity, extreme engagement bait, or constant complaining.
 
 STRICT FIELD LIMITS:
 - "tier": Maximum 4 words. Be concise.
@@ -129,11 +131,12 @@ Blend these elements naturally using your assigned style:
 3. End with a hilarious, unhinged insult. 
 CRITICAL: DO NOT use the word "Recommendation:". Let the final insult flow naturally into the rest of the paragraph without any formal sectioning.
 
-CRITICAL: The final insult MUST make sense for their calculated net worth using these STRICT FINANCIAL BRACKETS:
+CRITICAL: The final insult in the 'breakdown' AND the generated 'tier' MUST make sense for their calculated net worth using these STRICT FINANCIAL BRACKETS.
+VARY THE TIER NAMES! DO NOT copy-paste the exact same tier for everyone. Be highly creative with the 'tier' (e.g. "Delusional JPEG Gambler", "Exit Liquidity Provider", "Leveraged Reply Guy", "Unpaid Intern").
 - < $10k: Literal poverty jokes, McDonald's applications, used Hondas, tapping screens for scraps.
-- $10k - $100k: "Paper middle class", can barely afford rent but pretends to be a trader, pure exit liquidity.
-- $100k - $1M: "Mid-curve paper millionaire", trapped in the trenches, driving a leased BMW.
-- > $1M: "Fake whale", arrogant VC, paper wealth that will disappear in the bear market.
+- $10k - $100k: Paper middle class, can barely afford rent but pretends to be a trader, pure exit liquidity.
+- $100k - $1M: Trapped in the trenches, driving a leased BMW, mid-curve intelligence but lucky.
+- > $1M: Arrogant VC, paper wealth that will disappear in the bear market, fake whale.
 
 THE GROWTH TIP:
 Write a separate, 1-sentence piece of constructive, slightly sarcastic but genuinely useful advice on how they can improve their Twitter network/alpha. STRICTLY LIMIT TO 15 WORDS MAXIMUM.
