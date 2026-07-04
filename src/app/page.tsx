@@ -176,7 +176,7 @@ export default function Home() {
               <div className="bg-white/5 backdrop-blur-md p-6 border border-white/10 rounded-3xl hover:bg-white/10 transition-colors">
                 <h4 className="text-purple-400 font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                  Liquidity Providers
+                  Hard Carries
                 </h4>
                 <p className="font-medium text-zinc-400 text-sm leading-relaxed">Your top-tier followers (VCs, Founders, Whales) who inject the most clout into your net worth.</p>
               </div>
