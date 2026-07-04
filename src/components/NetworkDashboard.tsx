@@ -57,6 +57,7 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
       const dataUrl = await htmlToImage.toPng(targetRef, {
         backgroundColor: "#000000",
         pixelRatio: 2,
+        skipFonts: true,
       });
       const link = document.createElement("a");
       link.download = `${username}_ct_worth.png`;
@@ -82,6 +83,7 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
       const dataUrl = await htmlToImage.toPng(targetRef, {
         backgroundColor: "#000000",
         pixelRatio: 2,
+        skipFonts: true,
       });
 
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
