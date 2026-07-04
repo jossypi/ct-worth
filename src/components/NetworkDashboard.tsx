@@ -4,7 +4,7 @@ import { useRef, useMemo, useState } from "react";
 import * as htmlToImage from "html-to-image";
 import { AnalysisResult } from "@/lib/deepseek";
 import { Button } from "@/components/ui/button";
-import { Download, Share2, TrendingUp, Dices, Loader2 } from "lucide-react";
+import { Download, Share2, TrendingUp, Dices, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 import { jossyPiBase64 } from "@/lib/jossypiBase64";
 
@@ -40,15 +40,19 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
   const [showToxicity, setShowToxicity] = useState(true);
   const [showHardCarries, setShowHardCarries] = useState(true);
   const [showMeme, setShowMeme] = useState(false);
+  const [memeIndex, setMemeIndex] = useState(0);
 
   const isRightColumnEmpty = !showRoast && !showGrowthTip && !showToxicity;
 
-  const memeImage = analysis.impliedNetWorth > 500000 ? '/memes/gigachad.png' 
-                  : analysis.impliedNetWorth < 10000 ? '/memes/brainlet.png'
-                  : (analysis.toxicityScore > 70 && analysis.impliedNetWorth < 100000) ? '/memes/bogdanoff.png'
-                  : (analysis.toxicityScore > 50 || analysis.impliedNetWorth < 50000) ? '/memes/wojak.png' 
-                  : analysis.impliedNetWorth > 100000 ? '/memes/stonks.png'
-                  : '/memes/pepe.png';
+  const memeImage = useMemo(() => {
+    const memes = ['/memes/gigachad.png', '/memes/pepe.png', '/memes/wojak.png'];
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const initialIndex = Math.abs(hash) % memes.length;
+    return memes[(initialIndex + memeIndex) % memes.length];
+  }, [username, memeIndex]);
 
   const handleDownloadImage = async () => {
     const targetRef = exportRef.current || printRef.current;
@@ -202,8 +206,8 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
             {showRoast && (
               <div className="space-y-3">
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">The Roast</p>
-                <p className="text-zinc-300 font-medium text-base md:text-lg leading-relaxed bg-white/5 p-6 border border-white/10 rounded-2xl">
-                  &quot;{analysis.breakdown}&quot;
+                <p className="text-zinc-300 font-medium text-base md:text-lg leading-relaxed bg-white/5 p-6 border border-white/10 rounded-2xl whitespace-pre-wrap">
+                  {analysis.breakdown.trim()}
                 </p>
               </div>
             )}
@@ -289,14 +293,25 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
               </div>
               <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">Hard Carries</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <div className="relative flex items-center">
-                <input type="checkbox" className="sr-only" checked={showMeme} onChange={(e) => setShowMeme(e.target.checked)} />
-                <div className={`w-10 h-6 rounded-full transition-colors ${showMeme ? 'bg-[#ff00ff]' : 'bg-zinc-700'}`}></div>
-                <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showMeme ? 'translate-x-4' : 'translate-x-0'}`}></div>
-              </div>
-              <span className="text-sm font-black text-[#ff00ff] group-hover:text-white transition-colors">Meme Mode</span>
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input type="checkbox" className="sr-only" checked={showMeme} onChange={(e) => setShowMeme(e.target.checked)} />
+                  <div className={`w-10 h-6 rounded-full transition-colors ${showMeme ? 'bg-[#ff00ff]' : 'bg-zinc-700'}`}></div>
+                  <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${showMeme ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                </div>
+                <span className="text-sm font-black text-[#ff00ff] group-hover:text-white transition-colors">Meme Mode</span>
+              </label>
+              {showMeme && (
+                <button 
+                  onClick={() => setMemeIndex(prev => prev + 1)}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center shadow-lg"
+                  title="Shuffle Meme"
+                >
+                  <RefreshCcw className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -386,8 +401,8 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
                   {showRoast && (
                   <div className="space-y-2">
                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">The Roast</p>
-                    <p className="text-zinc-300 font-medium text-sm leading-relaxed bg-zinc-950/60 backdrop-blur-md p-4 border border-white/10 rounded-2xl">
-                      &quot;{analysis.breakdown}&quot;
+                    <p className="text-zinc-300 font-medium text-sm leading-relaxed bg-zinc-950/60 backdrop-blur-md p-4 border border-white/10 rounded-2xl whitespace-pre-wrap">
+                      {analysis.breakdown.trim()}
                     </p>
                   </div>
                 )}
@@ -424,7 +439,7 @@ export function NetworkDashboard({ username, analysis, onRegenerate, isLoading }
             <div className="p-4 border-t border-white/10 flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest bg-white/5 relative z-10 mt-auto">
               <p>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
               <p className="flex items-center gap-2 text-zinc-400 lowercase tracking-normal text-[11px] font-medium"><TrendingUp className="w-3 h-3 text-cyan-400" /> ct-worth.vercel.app</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
                 Built by @JossyPi
                 <img src={jossyPiBase64} alt="JossyPi" className="w-5 h-5 rounded-full border border-white/20" />
               </div>

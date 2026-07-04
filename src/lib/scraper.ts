@@ -28,6 +28,22 @@ export async function scrapeTwitterProfile(username: string): Promise<NetworkPay
       console.error("[Scraper] Failed to fetch user profile", await userRes.text());
     }
 
+    // Convert profile image to base64 to bypass CORS issues on the frontend during html-to-image export
+    try {
+      if (profileImageUrl) {
+        const highResUrl = profileImageUrl.replace('_normal', '_400x400');
+        const imgRes = await fetch(highResUrl);
+        if (imgRes.ok) {
+          const arrayBuffer = await imgRes.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
+          profileImageUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+        }
+      }
+    } catch (e) {
+      console.warn("[Scraper] Failed to convert profile image to base64, falling back to URL", e);
+    }
+
     // 2. Fetch followers (Deep Scrape - 4 pages to find the whales)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let allFollowers: any[] = [];
