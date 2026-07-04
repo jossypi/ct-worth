@@ -1,0 +1,47 @@
+[
+  {
+    "target": "WhaleVC",
+    "followers_sample": [
+      {
+        "handle": "Tier1Fund",
+        "followers": 500000,
+        "bio": "Managing $500M in digital assets. Backing the founders of tomorrow."
+      },
+      {
+        "handle": "TechBillionaire",
+        "followers": 1200000,
+        "bio": "Building the future. Mars 2030."
+      },
+      {
+        "handle": "DeFiGod",
+        "followers": 150000,
+        "bio": "Yield farming since 2019. Liquidity provider."
+      }
+    ],
+    "recent_tweets": [
+      "Just deployed another $10M into L2 infrastructure. The tech is inevitable.",
+      "Most retail traders don't understand order block dynamics. Sad.",
+      "Good morning to everyone building in the bear market."
+    ]
+  },
+  {
+    "target": "AirdropBeggar",
+    "followers_sample": [
+      {
+        "handle": "GiveawayBot",
+        "followers": 1000,
+        "bio": "RT to win $10 in BNB! Must tag 5 friends!"
+      },
+      {
+        "handle": "WenToken",
+        "followers": 50,
+        "bio": "Looking for the next 100x gem. Follow for follow back."
+      }
+    ],
+    "recent_tweets": [
+      "Pls sir @VitalikButerin send me ETH for gas fees 🙏🙏🙏",
+      "When is the ZkSync airdrop happening? I clicked the testnet button 500 times today.",
+      "GM fam let's get this bread! #Airdrop #Crypto"
+    ]
+  }
+]

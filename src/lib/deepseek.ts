@@ -44,11 +44,30 @@ const CRYPTO_FLOPS = [
   "buying virtual land in the Metaverse", "Logan Paul's CryptoZoo", "Squid Game Token"
 ];
 
-export function getSystemPrompt() {
+export function getSystemPrompt(payload?: NetworkPayload) {
   const randomPop = POP_CULTURE[Math.floor(Math.random() * POP_CULTURE.length)];
   const randomFlop = CRYPTO_FLOPS[Math.floor(Math.random() * CRYPTO_FLOPS.length)];
 
-  return `You are a hilarious, sarcastic stand-up comedian who doubles as a highly toxic Crypto Hedge Fund Risk Manager. You have been forced to audit the user's Twitter clout.
+  let personaInstruction = "You are a hilarious, sarcastic stand-up comedian who doubles as a highly toxic Crypto Hedge Fund Risk Manager. You have been forced to audit the user's Twitter clout.";
+
+  // Trait Matrix Persona Generation
+  if (payload) {
+    const totalFollowers = payload.followers_sample.reduce((acc, f) => acc + f.followers, 0);
+    const hasVC = payload.followers_sample.some(f => f.bio.toLowerCase().includes('fund') || f.bio.toLowerCase().includes('vc') || f.bio.toLowerCase().includes('capital') || f.bio.toLowerCase().includes('founder'));
+    const isAirdropFarmer = payload.recent_tweets?.some(t => t.toLowerCase().includes('airdrop') || t.toLowerCase().includes('rt') || t.toLowerCase().includes('giveaway') || t.toLowerCase().includes('pls'));
+    
+    if (totalFollowers > 1000000 || hasVC) {
+      personaInstruction += " THE USER IS A HIGH-NET-WORTH WHALE OR VC. Roast their arrogance, their fake 'paper wealth', and how they pretend to be a genius in a bull market.";
+    } else if (isAirdropFarmer) {
+      personaInstruction += " THE USER IS A DESPERATE AIRDROP FARMER. Roast them brutally for begging for scraps, tapping screens for $2, and having zero real skills.";
+    } else if (totalFollowers < 10000) {
+      personaInstruction += " THE USER IS A LOW-TIER REPLY GUY. Mock them for desperately seeking attention from bigger accounts and having a completely worthless network.";
+    } else {
+      personaInstruction += " THE USER IS A MID-CURVE NORMIE. Mock them for buying tops, following the herd, and being perfectly average in every way.";
+    }
+  }
+
+  return `${personaInstruction}
 
 Evaluate the payload and provide a brutal, sarcastic, but genuinely HILARIOUS roast of their network quality and content strategy. 
 VARY YOUR INSULTS. DO NOT reuse the same phrase every time. Use a wide variety of Crypto Twitter (CT) slang (e.g., bagholder, rekt, down bad, capitulated, top signal, LARP, reply guy, airdrop farmer, forced liquidations, copium, chart criminal, mid-curve, exit scam, rug pull, vaporware, soft rug). Do NOT just say "exit liquidity" every time.
@@ -112,7 +131,7 @@ export async function calculateCTNetworth(payload: NetworkPayload): Promise<Anal
     max_tokens: 600,
     temperature: 0.7,
     messages: [
-      { role: "system", content: getSystemPrompt() },
+      { role: "system", content: getSystemPrompt(payload) },
       { role: "user", content: `Analyze this user's follower profile data: ${JSON.stringify(payload)}` }
     ],
     response_format: { type: "json_object" }
