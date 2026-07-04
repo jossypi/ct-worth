@@ -1,9 +1,6 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.LLM_API_KEY || process.env.GROK_API_KEY || "", 
-  baseURL: process.env.LLM_BASE_URL || (process.env.GROK_API_KEY ? "https://api.x.ai/v1" : "https://api.deepseek.com"), 
-});
+// Client will be instantiated per-request to avoid Vercel build-time crashes when env vars are missing
 
 export interface FollowerData {
   handle: string;
@@ -166,6 +163,16 @@ function cleanAndParseJSON(rawResponse: string) {
 }
 
 export async function calculateCTNetworth(payload: NetworkPayload, regenerate: boolean = false): Promise<AnalysisResult> {
+  const apiKey = process.env.LLM_API_KEY || process.env.GROK_API_KEY;
+  if (!apiKey) {
+    console.warn("[CT-Worth] Missing LLM_API_KEY in environment variables.");
+  }
+
+  const client = new OpenAI({
+    apiKey: apiKey || "dummy_key_to_prevent_build_crash",
+    baseURL: process.env.LLM_BASE_URL || (process.env.GROK_API_KEY ? "https://api.x.ai/v1" : "https://api.deepseek.com"),
+  });
+
   const response = await client.chat.completions.create({
     model: process.env.LLM_MODEL || (process.env.GROK_API_KEY ? "grok-beta" : "deepseek-chat"),
     max_tokens: 600,
