@@ -119,17 +119,17 @@ export default function Home() {
                 <Button 
                   type="submit" 
                   disabled={isLoading} 
-                  className="h-14 md:h-16 px-8 bg-white text-black hover:bg-zinc-200 text-lg font-bold transition-all rounded-full flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full sm:w-auto max-w-full overflow-hidden h-14 md:h-16 px-8 bg-white text-black hover:bg-zinc-200 text-lg font-bold transition-all rounded-full flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      {loadingPhrases[loadingPhraseIdx]}
+                      <Loader2 className="h-5 w-5 animate-spin shrink-0" />
+                      <span className="truncate">{loadingPhrases[loadingPhraseIdx]}</span>
                     </>
                   ) : (
                     <>
-                      <Search className="h-5 w-5" />
-                      Calculate
+                      <Search className="h-5 w-5 shrink-0" />
+                      <span>Calculate</span>
                     </>
                   )}
                 </Button>

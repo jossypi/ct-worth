@@ -189,5 +189,12 @@ export async function calculateCTNetworth(payload: NetworkPayload, regenerate: b
     throw new Error("Failed to generate analysis");
   }
 
-  return cleanAndParseJSON(content) as AnalysisResult;
+  const result = cleanAndParseJSON(content) as AnalysisResult;
+
+  // Enforce deterministic net worth calculation to prevent inconsistency
+  const totalFollowers = payload.followers_sample.reduce((acc, f) => acc + f.followers, 0);
+  const hardCarriesFollowers = payload.followers_sample.slice(0, 3).reduce((acc, f) => acc + f.followers, 0);
+  result.impliedNetWorth = Math.floor(1500 + (totalFollowers * 0.2) + (hardCarriesFollowers * 1.5));
+
+  return result;
 }
