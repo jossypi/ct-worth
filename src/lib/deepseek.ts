@@ -46,6 +46,7 @@ export function getSystemPrompt(payload?: NetworkPayload) {
 
   let basePrompt = "";
   let personaInstruction = "";
+  let growthTipAngle = "";
 
   if (payload) {
     const hardCarriesList = payload.followers_sample.slice(0, 3).map(f => `@${f.handle}`).join(', ');
@@ -71,20 +72,28 @@ export function getSystemPrompt(payload?: NetworkPayload) {
 
     if (totalFollowers > 1000000 || hasVC) {
       personaInstruction = "THE USER IS A HIGH-NET-WORTH WHALE OR VC. Roast their arrogance, their fake 'paper wealth', and how they pretend to be a genius in a bull market.";
+      growthTipAngle = "Advise them to stop pretending to be a genius and admit they just got lucky early.";
     } else if (isEngagementBaiter) {
       personaInstruction = "THE USER IS AN ENGAGEMENT BAITER. Destroy them for posting 'Drop your ENS' like a desperate engagement farmer with no real thoughts of their own.";
+      growthTipAngle = "Advise them to actually build a real skill instead of begging for engagement.";
     } else if (isSolanaGambler) {
       personaInstruction = "THE USER IS A SOLANA MEMECOIN GAMBLER. Mock them for donating all their money to 15-year-old devs on pump.fun and chasing 1000x scams.";
+      growthTipAngle = "Advise them to stop donating money to 15-year-old devs and learn how to read a smart contract.";
     } else if (isNftDegen) {
       personaInstruction = "THE USER IS A DELUSIONAL NFT DEGEN. Roast them for holding worthless JPEGs, screaming 'we are so back', and sweeping floors to zero.";
+      growthTipAngle = "Advise them to sell their illiquid JPEGs and buy Bitcoin like a grown adult.";
     } else if (isBuilder) {
       personaInstruction = "THE USER IS A TECH/BUILDER BRO. Mock them for writing flawless Rust code for protocols that have exactly 3 daily active users.";
+      growthTipAngle = "Advise them to learn marketing because their flawless code has 0 active users.";
     } else if (isAirdropFarmer) {
       personaInstruction = "THE USER IS A DESPERATE AIRDROP FARMER. Roast them brutally for begging for scraps, tapping screens for $2, and having zero real skills.";
+      growthTipAngle = "Advise them to get a real job instead of tapping screens for $2.";
     } else if (totalFollowers < 10000) {
       personaInstruction = "THE USER IS A LOW-TIER REPLY GUY. Mock them for desperately seeking attention from bigger accounts and having a completely worthless network.";
+      growthTipAngle = "Advise them to stop replying to big accounts and actually ship a product or original thesis.";
     } else {
       personaInstruction = "THE USER IS A MID-CURVE NORMIE. Mock them for buying tops, following the herd, and being perfectly average in every way.";
+      growthTipAngle = "Advise them to take a risk instead of safely mid-curving every single crypto cycle.";
     }
   }
 
@@ -136,7 +145,10 @@ VARY THE TIER NAMES! DO NOT copy-paste the exact same tier for everyone. Be high
 - > $1M: Arrogant VC, paper wealth that will disappear in the bear market, fake whale.
 
 THE GROWTH TIP:
-Write a separate, 1-sentence piece of constructive, slightly sarcastic but genuinely useful advice on how they can improve their Twitter network/alpha. STRICTLY LIMIT TO 15 WORDS MAXIMUM.
+Write a separate, 1-sentence piece of constructive, slightly sarcastic but genuinely useful advice on how they can improve their Twitter network/alpha.
+${growthTipAngle ? `SPECIFIC ANGLE: ${growthTipAngle}` : ''}
+CRITICAL: The advice MUST be highly specific. Explicitly reference a pattern in their 'Recent activity' tweets, their bio, or their hard carries. If their timeline is purely retweets, you can tell them to stop RTing, but make sure the advice feels tailor-made to their specific profile data.
+STRICTLY LIMIT TO 15 WORDS MAXIMUM.
 
 CRITICAL: The impliedNetWorth, tier, alphaMetric, hardCarries, and toxicityScore MUST be logically derived from the payload. Your 'breakdown' should feel like a viral, shareable, brutal CT roast.
 Return ONLY a valid minified JSON object matching the requested schema. No conversational filler, no markdown prose outside strings.
